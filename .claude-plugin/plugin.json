@@ -1,0 +1,5 @@
+{
+  "name": "kundo-api",
+  "version": "0.1.0",
+  "description": "Query Kundo's public ärende-data API for tickets, email threads, audit events, channels, editors, and contacts."
+}
