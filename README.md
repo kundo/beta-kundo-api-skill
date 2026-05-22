@@ -9,7 +9,7 @@ Works in both terminal Claude Code and the Claude macOS desktop app (they share 
 In Claude Code, run:
 
 ```
-/plugin marketplace add kundo/kundo-api-skill
+/plugin marketplace add kundo/beta-kundo-api-skill
 /plugin install kundo-api@kundo
 ```
 
