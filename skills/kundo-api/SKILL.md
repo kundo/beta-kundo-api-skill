@@ -1,6 +1,6 @@
 ---
 name: kundo-api
-description: "Query the Kundo API for tickets, threads, events, and contacts."
+description: Query Kundo's public ärende-data API for tickets, email threads, audit events, channels, editors, and contacts. Trigger when the user asks to read tickets/ärenden, inspect an email thread, audit who reassigned/closed a ticket, list editors/contacts/channels, pull Kundo data into Power BI / CRM / a dashboard, or onboard a customer to the API. Do NOT trigger for help-center articles (use kundo-helpcenter-api) or the legacy forum/dialog API at kundo.se/api-doc/ (separate `?key=` query auth).
 ---
 
 # Kundo API (ärende-data)
@@ -26,7 +26,7 @@ Base URL: `https://api.kundo.app`. All endpoints GET, JSON responses, list envel
 - **Resolution order** (every script uses this):
   1. `$KUNDO_API_TOKEN` — preferred for shells and Cowork.
   2. `~/.kundo/credentials.json` (file mode 0600) — for multi-org use in Claude Code.
-  3. **Onboarding wizard** if neither is set — `python3 scripts/kapi.py onboard --token <pasted-key>` smoke-tests `/v1/me`, discovers the bound org, and persists.
+  3. **Onboarding wizard** if neither is set — `python3 "${CLAUDE_PLUGIN_ROOT}/skills/kundo-api/scripts/kapi.py" onboard --token <pasted-key>` smoke-tests `/v1/me`, discovers the bound org, and persists.
 
 ### First-run onboarding (the customer flow)
 
@@ -38,7 +38,7 @@ When a user first asks to query the API and no token is resolvable, say exactly 
 
 When they paste the key:
 
-1. Run `python3 .claude/skills/kundo-api/scripts/kapi.py onboard --token <pasted-key>`. It hits `/v1/me`, discovers the bound `organization_id`, and writes `~/.kundo/credentials.json` (mode 0600).
+1. Run `python3 "${CLAUDE_PLUGIN_ROOT}/skills/kundo-api/scripts/kapi.py" onboard --token <pasted-key>`. It hits `/v1/me`, discovers the bound `organization_id`, and writes `~/.kundo/credentials.json` (mode 0600).
 2. Confirm the org name back to the user using the bound id.
 
 Do NOT ask the user for their `org_id` — the token reveals it. Do NOT walk them through the dashboard UI yourself — the help-center guide does that.
@@ -72,11 +72,12 @@ curl -s -H "Token: $KUNDO_API_TOKEN" \
 Or via the CLI wrapper (handles auth resolution + pretty-printing):
 
 ```sh
-python3 .claude/skills/kundo-api/scripts/kapi.py me
-python3 .claude/skills/kundo-api/scripts/kapi.py tickets --limit 10 --sort=-created_at
-python3 .claude/skills/kundo-api/scripts/kapi.py ticket <uuid>
-python3 .claude/skills/kundo-api/scripts/kapi.py messages <uuid>
-python3 .claude/skills/kundo-api/scripts/kapi.py events <uuid> --event-types assign
+KAPI="${CLAUDE_PLUGIN_ROOT}/skills/kundo-api/scripts/kapi.py"
+python3 "$KAPI" me
+python3 "$KAPI" tickets --limit 10 --sort=-created_at
+python3 "$KAPI" ticket <uuid>
+python3 "$KAPI" messages <uuid>
+python3 "$KAPI" events <uuid> --event-types assign
 ```
 
 Use `--sort=-created_at` (with `=`), not `--sort -created_at` — argparse treats a leading dash as a flag.
@@ -108,5 +109,5 @@ Stillma test fixtures (channel ids, sample ticket UUIDs) live in [REFERENCE.md](
 This skill works in Claude Cowork (claude.ai) too — every recipe above is plain `curl`. The differences:
 
 - **No `~/.kundo/credentials.json`**. Set `$KUNDO_API_TOKEN` in the session/environment instead.
-- **No Playwright onboarding**. Walk the user through the dashboard manually (the 4 steps above) and have them paste the token.
+- **No Playwright onboarding**. Walk the user through the dashboard manually and have them paste the token.
 - **`scripts/kapi.py` still works** if Python is available — it just falls back to env-only mode when `~/.kundo/` isn't writable.

@@ -1,0 +1,14 @@
+{
+  "name": "kundo",
+  "owner": {
+    "name": "Kundo",
+    "url": "https://www.kundo.se"
+  },
+  "plugins": [
+    {
+      "name": "kundo-api",
+      "source": ".",
+      "description": "Query Kundo's public ärende-data API for tickets, email threads, audit events, channels, editors, and contacts."
+    }
+  ]
+}
